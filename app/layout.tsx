@@ -1,27 +1,31 @@
-import type React from "react"
-import type {Metadata} from "next"
-import {Inter} from "next/font/google"
-import "./globals.css"
+import type React from 'react'
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
+import Providers from '@/providers'
 
-const inter = Inter({subsets: ["latin"]})
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-    title: "Your App",
-    description: "Your app description",
+  title: 'Your App',
+  description: 'Your app description'
 }
 
+
 export default function RootLayout({
-                                       children,
+                                     children
                                    }: {
-    children: React.ReactNode
+  children: React.ReactNode
 }) {
-    return (
-        <html lang="en" suppressHydrationWarning>
-        <body className={inter.className + " w-screen overflow-x-hidden"}>
-        <div className="max-w-7xl w-full mx-auto">
-            {children}
-        </div>
-        </body>
-        </html>
-    )
+  return (
+    <Providers>
+      <html lang="en" suppressHydrationWarning>
+      <body className={inter.className + ' w-screen overflow-x-hidden'}>
+      <div className="w-full px-[5%]">
+        {children}
+      </div>
+      </body>
+      </html>
+    </Providers>
+  )
 }

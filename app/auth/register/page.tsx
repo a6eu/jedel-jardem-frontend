@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { DoctorCard } from '@/components/doctor-card'
+import { api } from '@/http'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -47,9 +48,9 @@ export default function RegisterPage() {
     try {
       setIsLoading(true)
 
-
+      const response = await api.post('/auth/register', formData)
+      console.log(response)
       console.log('Registration successful')
-
       router.push('/feed')
     } catch (error) {
       console.error('Registration error:', error)
@@ -108,7 +109,7 @@ export default function RegisterPage() {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="specialization">Specialization</Label>
-              <Select onValueChange={handleSpecializationChange} value={formData.specialization}>
+              <Select onValueChange={handleSpecializationChange} value={formData.role}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select specialization" />
                 </SelectTrigger>
@@ -176,7 +177,7 @@ export default function RegisterPage() {
         <div className="hidden md:flex items-center justify-center">
           <DoctorCard
             name={formData.name || 'Your Name'}
-            specialization={formData.specialization || 'Your Specialization'}
+            specialization={formData.role || 'Your Specialization'}
             company={formData.company || 'Your Hospital/Clinic'}
             email={formData.email || 'your.email@example.com'}
             gender={formData.gender || ''}

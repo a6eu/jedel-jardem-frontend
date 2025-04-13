@@ -2,14 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { Home, MessageSquare, User } from 'lucide-react'
 
@@ -48,22 +47,17 @@ export function MainNav() {
             {/*        <span className="sr-only">Notifications</span>*/}
             {/*    </Button>*/}
             {/*</Link>*/}
-            <Link href="/profile">
-              <Button variant={pathname === '/profile' ? 'default' : 'ghost'} size="icon">
-                <User className="h-5 w-5" />
-                <span className="sr-only">Profile</span>
-              </Button>
-            </Link>
+            {/*<Link href="/profile">*/}
+            {/*  <Button variant={pathname === '/profile' ? 'default' : 'ghost'} size="icon">*/}
+
+            {/*  </Button>*/}
+            {/*</Link>*/}
           </nav>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback
-                    className="bg-gradient-to-br from-pink-400 to-violet-500 text-white">
-                    YN
-                  </AvatarFallback>
-                </Avatar>
+              <Button variant={pathname === '/profile' ? 'default' : 'ghost'} size="icon">
+                <User className="h-5 w-5" />
+                <span className="sr-only">Profile</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
