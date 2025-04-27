@@ -7,8 +7,8 @@ import Providers from '@/providers'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Your App',
-  description: 'Your app description'
+  title: 'Jedel Jardem',
+  description: 'Zhadyra and Akbota`s website for mental and not only health'
 }
 
 
