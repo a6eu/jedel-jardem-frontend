@@ -99,6 +99,10 @@ export default function UserPage() {
                         <p className="text-lg">{user.patientData?.weight ? `${user.patientData.weight} kg` : '-'}</p>
                       </div>
                       <div>
+                        <p className="text-sm font-medium text-gray-500">Hear rate</p>
+                        <p className="text-lg">{user.patientData?.weight ? `${user.patientData.heartBeat} per minute` : '-'}</p>
+                      </div>
+                      <div>
                         <p className="text-sm font-medium text-gray-500">Height</p>
                         <p className="text-lg">{user.patientData?.height ? `${user.patientData.height} cm` : '-'}</p>
                       </div>

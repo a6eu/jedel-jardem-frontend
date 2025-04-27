@@ -8,7 +8,7 @@ import { MainNav } from '@/components/main-nav'
 import { ChatSidebar } from '@/components/chat-sidebar'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Bell, Download, FileText, ImageIcon, Paperclip } from 'lucide-react'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useGetChatById } from '@/hooks/use-get-chat-by-id'
 import { useGetMessages } from '@/hooks/use-get-messages'
 import { formatDate } from '@/utils'
@@ -36,7 +36,7 @@ type Message = {
 }
 
 type ChatRecipient = {
-  id: string
+  _id: string
   name: string
   avatar?: string
   role: string
@@ -54,6 +54,7 @@ export default function ChatPage() {
   const params = useSearchParams()
   const { chat } = useGetChatById(params.get('id') as string) as { chat?: ChatData }
   const { data: messages } = useGetMessages(params.get('id') as string) as { data?: Message[] }
+  const router = useRouter()
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
@@ -124,7 +125,7 @@ export default function ChatPage() {
         <main className="flex flex-1 flex-col">
           {chat?.recipient ? (
             <>
-              <div className="border-b p-4 flex items-center justify-between">
+              <div onClick={() => router.push(`/user/${chat?.recipient._id}`)} className="border-b p-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Avatar>
                     <AvatarImage src={chat.recipient.avatar} alt={chat.recipient.name} />

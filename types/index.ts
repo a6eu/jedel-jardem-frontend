@@ -29,7 +29,8 @@ export interface User {
     weight: string,
     height: string,
     illnessHistory: string[],
-    allergies: string[]
+    allergies: string[],
+    heartBeat: string,
   },
   company: string
   bio: string
