@@ -22,8 +22,8 @@ export function MainNav() {
         <div className="mr-4 flex">
           <Link href="/feed" className="mr-6 flex items-center space-x-2">
             <span
-              className="font-bold text-xl bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">
-              MedConnect
+              className="font-bold text-xl bg-[#1E7F6E] bg-clip-text text-transparent">
+              Jedel Jardem
             </span>
           </Link>
         </div>
@@ -41,17 +41,6 @@ export function MainNav() {
                 <span className="sr-only">Messages</span>
               </Button>
             </Link>
-            {/*<Link href="/notifications">*/}
-            {/*    <Button variant={pathname === "/notifications" ? "default" : "ghost"} size="icon">*/}
-            {/*        <Bell className="h-5 w-5"/>*/}
-            {/*        <span className="sr-only">Notifications</span>*/}
-            {/*    </Button>*/}
-            {/*</Link>*/}
-            {/*<Link href="/profile">*/}
-            {/*  <Button variant={pathname === '/profile' ? 'default' : 'ghost'} size="icon">*/}
-
-            {/*  </Button>*/}
-            {/*</Link>*/}
           </nav>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -64,9 +53,6 @@ export function MainNav() {
               <DropdownMenuItem asChild>
                 <Link href="/profile">Profile</Link>
               </DropdownMenuItem>
-              {/*<DropdownMenuItem asChild>*/}
-              {/*    <Link href="/settings">Settings</Link>*/}
-              {/*</DropdownMenuItem>*/}
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link href="/auth/login">Logout</Link>

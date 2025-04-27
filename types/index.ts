@@ -46,6 +46,7 @@ export interface Chat {
 }
 
 export interface Message {
+  userId: string
   _id: string
   chat: string
   sender: User,

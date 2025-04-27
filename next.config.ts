@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  allowedDevOrigins: ['https://jedel-jardem.space'],
+  allowedDevOrigins: ['http://jedel-jardem.space'],
 };
 
 export default nextConfig;

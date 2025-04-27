@@ -83,7 +83,7 @@ export default function ProfilePage() {
                     <div className="flex flex-col items-center space-y-2">
                       <Avatar className="h-24 w-24 border-2 border-pink-200">
                         <AvatarFallback
-                          className="bg-gradient-to-br from-pink-400 to-violet-500 text-white text-xl">
+                          className="bg-[#1E7F6E] text-white text-xl">
                           {profileData.name
                             .split(' ')
                             .map((n) => n[0])
@@ -129,7 +129,7 @@ export default function ProfilePage() {
                   </div>
                 </CardContent>
                 <CardFooter className="flex justify-end">
-                  <Button className="bg-gradient-to-r from-pink-500 to-violet-500"
+                  <Button className="bg-[#1E7F6E]"
                           onClick={handleSave}>
                     Save Changes
                   </Button>
@@ -169,7 +169,7 @@ export default function ProfilePage() {
                   </div>
                 </CardContent>
                 <CardFooter className="flex justify-end">
-                  <Button className="bg-gradient-to-r from-pink-500 to-violet-500"
+                  <Button className="bg-[#1E7F6E]"
                           onClick={handleSave}>
                     Save Changes
                   </Button>

@@ -12,14 +12,12 @@ interface DoctorCardProps {
 }
 
 export function DoctorCard({name, specialization, company, email, gender, avatarUrl}: DoctorCardProps) {
-    // Get initials from name for avatar fallback
     const initials = name
         .split(" ")
         .map((n) => n[0])
         .join("")
         .toUpperCase()
 
-    // Map specialization to a color
     const specializationColors: Record<string, string> = {
         cardiology: "bg-red-100 text-red-800",
         neurology: "bg-purple-100 text-purple-800",
@@ -30,15 +28,15 @@ export function DoctorCard({name, specialization, company, email, gender, avatar
         general: "bg-gray-100 text-gray-800",
     }
 
-    const badgeClass = specializationColors[specialization.toLowerCase()] || "bg-pink-100 text-pink-800"
+    const badgeClass = specializationColors[specialization.toLowerCase()] || "bg-teal-100 text-teal-800"
 
     return (
         <Card className="w-full max-w-md transform transition-all duration-300 hover:shadow-lg">
             <CardHeader className="pb-2">
                 <div className="flex items-center gap-4">
-                    <Avatar className="h-16 w-16 border-2 border-pink-200">
+                    <Avatar className="h-16 w-16 border-2">
                         <AvatarImage src={avatarUrl} alt={name}/>
-                        <AvatarFallback className="bg-gradient-to-br from-pink-400 to-violet-500 text-white">
+                        <AvatarFallback className="bg-[#1E7F6E] text-white">
                             {initials || "MD"}
                         </AvatarFallback>
                     </Avatar>
@@ -62,7 +60,7 @@ export function DoctorCard({name, specialization, company, email, gender, avatar
                                 strokeWidth="2"
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
-                                className="text-pink-500"
+                                className="text-teal-800"
                             >
                                 <path d="M3 21h18"></path>
                                 <path d="M5 21V7l8-4v18"></path>
@@ -86,7 +84,7 @@ export function DoctorCard({name, specialization, company, email, gender, avatar
                                 strokeWidth="2"
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
-                                className="text-pink-500"
+                                className="text-teal-800"
                             >
                                 <circle cx="12" cy="8" r="5"></circle>
                                 <path d="M20 21a8 8 0 0 0-16 0"></path>
@@ -106,7 +104,7 @@ export function DoctorCard({name, specialization, company, email, gender, avatar
                                 strokeWidth="2"
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
-                                className="text-pink-500"
+                                className="text-teal-800"
                             >
                                 <rect width="20" height="16" x="2" y="4" rx="2"></rect>
                                 <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>

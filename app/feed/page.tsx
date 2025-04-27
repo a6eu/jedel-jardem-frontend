@@ -20,50 +20,6 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { SlidersHorizontal } from 'lucide-react'
 
-// Sample data for posts
-// const initialPosts = [
-//   {
-//     id: 1,
-//     author: {
-//       name: 'Dr. Sarah Johnson',
-//       avatar: '/placeholder.svg?height=40&width=40',
-//       specialization: 'Cardiology'
-//     },
-//     content:
-//       'Just published a new paper on advances in cardiac imaging techniques. Happy to share insights with colleagues interested in this field.',
-//     timestamp: '2 hours ago',
-//     likes: 24,
-//     comments: 5
-//   },
-//   {
-//     id: 2,
-//     author: {
-//       name: 'Dr. Michael Chen',
-//       avatar: '/placeholder.svg?height=40&width=40',
-//       specialization: 'Neurology'
-//     },
-//     content:
-//       'Looking for collaborators on a research project focused on early detection of neurodegenerative diseases. Please reach out if interested!',
-//     timestamp: '5 hours ago',
-//     likes: 18,
-//     comments: 7
-//   },
-//   {
-//     id: 3,
-//     author: {
-//       name: 'Dr. Emily Rodriguez',
-//       avatar: '/placeholder.svg?height=40&width=40',
-//       specialization: 'Pediatrics'
-//     },
-//     content:
-//       'Attended an amazing conference on childhood immunology yesterday. So many promising developments in the field!',
-//     timestamp: '1 day ago',
-//     likes: 42,
-//     comments: 12
-//   }
-// ]
-
-
 export default function FeedPage() {
   const { user } = useGetUser()
 
@@ -72,21 +28,24 @@ export default function FeedPage() {
     description: '',
     category: ''
   })
-  const { mutate: createChat, isSuccess: chatStatus, data: chatData } = useCreateChatMutation()
+  const { mutate: createChat } = useCreateChatMutation()
   const { posts } = useGetPosts()
   const { mutate: createPost, isPending: isPosting } = useCreatePostMutation()
   const router = useRouter()
-  const [chatButtonClicked, setChatButtonClicked] = useState('')
+  const [chatButtonClicked] = useState('')
   const [category, setCategory] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [authorName, setAuthorName] = useState('')
 
-  const handleChatClick = (id: string) => {
-    setChatButtonClicked(id)
-    createChat(id)
+  const handleChatClick = async (id: string) => {
+    if (user) {
+      try {
+        const chatId = await createChat(id, user._id);
 
-    if (chatStatus) {
-      router.push(`/chat?id=${chatData?._id}`)
+        router.push(`/chat?id=${chatId}`);
+      } catch (error) {
+        console.error('Error creating chat:', error);
+      }
     }
   }
 
@@ -171,7 +130,7 @@ export default function FeedPage() {
               <CardHeader className="p-4">
                 <div className="flex items-start gap-4">
                   <Avatar>
-                    <AvatarFallback className="bg-gradient-to-br from-pink-400 to-violet-500 text-white">
+                    <AvatarFallback className="bg-[#1E7F6E] text-white">
                       {user?.name.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
@@ -214,7 +173,7 @@ export default function FeedPage() {
               </CardContent>
               <CardFooter className="p-4 pt-0 flex justify-end">
                 <Button
-                  className="bg-gradient-to-r from-pink-500 to-violet-500"
+                  className="bg-[#1E7F6E]"
                   onClick={handleCreatePost}
                   disabled={isPosting}
                 >
@@ -232,7 +191,7 @@ export default function FeedPage() {
                     <Avatar>
                       <AvatarImage src={post.author.avatar} alt={post.author.name} />
                       <AvatarFallback
-                        className="bg-gradient-to-br from-pink-400 to-violet-500 text-white">
+                        className="bg-[#1E7F6E] text-white">
                         {post.author.name
                           .split(' ')
                           .map((n) => n[0])
@@ -243,7 +202,7 @@ export default function FeedPage() {
                     <div className="flex-1 space-y-1">
                       <div className="flex items-center">
                         <span className="font-semibold">{post.author.name}</span>
-                        <Badge className="ml-2 bg-pink-100 text-pink-800 hover:bg-pink-100">
+                        <Badge className="ml-2 bg-teal-100 text-teal-950 hover:bg-pink-100">
                           {post.author.role}
                         </Badge>
                       </div>
@@ -262,7 +221,7 @@ export default function FeedPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="flex items-center gap-1 text-pink-500"
+                      className="flex items-center gap-1 text-[#1E7F6E]"
                       onClick={() => {
                       }}
                     >
@@ -301,7 +260,7 @@ export default function FeedPage() {
                     </Button>
                   </div>
                   <Button onClick={() => handleChatClick(post.author._id)}
-                          className="bg-gradient-to-r from-pink-500 to-violet-500">
+                          className="bg-[#1E7F6E]">
                     {chatButtonClicked !== post.author._id
                       ? 'Chat with ' + post.author.name.split(' ')[0]
                       : 'Click one more time'
@@ -318,9 +277,9 @@ export default function FeedPage() {
               </CardHeader>
               {user ? <CardContent>
                 <div className="flex items-center gap-4">
-                  <Avatar className="h-16 w-16 border-2 border-pink-200">
+                  <Avatar className="h-16 w-16 border-2">
                     <AvatarFallback
-                      className="bg-gradient-to-br from-pink-400 to-violet-500 text-white">
+                      className="bg-[#1E7F6E] text-white">
                       {user.name?.split(' ').map((name: string) => name[0])}
                     </AvatarFallback>
                   </Avatar>

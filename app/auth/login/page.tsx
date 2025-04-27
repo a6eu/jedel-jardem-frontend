@@ -42,7 +42,7 @@ export default function LoginPage() {
           <div className="space-y-6">
             <div className="space-y-2 text-center">
               <h1
-                className="text-3xl font-bold tracking-tighter bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">
+                className="text-3xl font-bold tracking-tighter bg-[#1E7F6E] bg-clip-text text-transparent">
                 Welcome Back
               </h1>
               <p className="text-gray-500">Sign in to your MedConnect account</p>
@@ -73,14 +73,14 @@ export default function LoginPage() {
                   onChange={handleChange}
                 />
               </div>
-              <Button type="submit" className="w-full bg-gradient-to-r from-pink-500 to-violet-500">
+              <Button type="submit" className="w-full bg-[#1E7F6E]">
                 Sign In
               </Button>
             </form>
             <div className="text-center">
               <p className="text-sm text-gray-500">
                 Don&#39;t have an account?{' '}
-                <Link href="/auth/register" className="text-pink-500 hover:underline">
+                <Link href="/auth/register" className="text-teal-950 hover:underline">
                   Sign up
                 </Link>
               </p>

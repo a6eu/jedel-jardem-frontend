@@ -66,8 +66,8 @@ export default function RegisterPage() {
         <div className="flex flex-col justify-center space-y-6">
           <div className="space-y-2 text-center md:text-left">
             <h1
-              className="text-3xl font-bold tracking-tighter bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">
-              Join MedConnect
+              className="text-3xl font-bold tracking-tighter bg-[#1E7F6E] bg-clip-text text-transparent">
+              Join Jedel Jardem
             </h1>
             <p className="text-gray-500">
               Create your account and connect with medical professionals worldwide.
@@ -160,7 +160,7 @@ export default function RegisterPage() {
                 onChange={handleChange}
               />
             </div>
-            <Button type="submit" className="w-full bg-gradient-to-r from-pink-500 to-violet-500"
+            <Button type="submit" className="w-full bg-[#1E7F6E]"
                     disabled={isLoading}>
               {isLoading ? 'Creating Account...' : 'Create Account'}
             </Button>
@@ -168,7 +168,7 @@ export default function RegisterPage() {
           <div className="text-center">
             <p className="text-sm text-gray-500">
               Already have an account?{' '}
-              <Link href="/auth/login" className="text-pink-500 hover:underline">
+              <Link href="/auth/login" className="text-teal-950 hover:underline">
                 Sign in
               </Link>
             </p>
