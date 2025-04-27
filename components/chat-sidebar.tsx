@@ -9,6 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { ChevronLeft, Search } from 'lucide-react'
 import { useGetChats } from '@/hooks/use-get-chats'
 import { formatDate } from '@/utils'
+import { useGetUser } from '@/hooks/use-get-user'
 
 // // Sample data for chats
 // const chats = [
@@ -68,7 +69,7 @@ export function ChatSidebar() {
     return null
   }
 
-  const filteredChats = chats.filter((chat) => chat.recipient.name.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredChats = chats.filter((chat) => chat.recipient && chat.recipient.name.toLowerCase().includes(searchQuery.toLowerCase()))
 
   return (
     <div className={`border-r bg-gray-50 transition-all duration-300 ${isOpen ? 'w-80' : 'w-0'}`}>

@@ -8,7 +8,7 @@ import { MainNav } from '@/components/main-nav'
 import { ChatSidebar } from '@/components/chat-sidebar'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Bell } from 'lucide-react'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useGetChatById } from '@/hooks/use-get-chat-by-id'
 import { useGetMessages } from '@/hooks/use-get-messages'
 import { formatDate } from '@/utils'
@@ -21,6 +21,7 @@ export default function ChatPage() {
   const { chat } = useGetChatById(params.get('id') as string)
   const { messages } = useGetMessages(params.get('id') as string)
   const { mutate } = useSendMessageMutation()
+  const router = useRouter()
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -53,7 +54,7 @@ export default function ChatPage() {
         <main className="flex flex-1 flex-col">
           {chat ? <>
             <div className="border-b p-4 flex items-center justify-between">
-              <div className="flex items-center gap-2">
+              <div onClick={() => router.push('/user/' + chat?.recipient?._id)} className="flex items-center gap-2 cursor-pointer">
                 <Avatar>
                   <AvatarImage src={chat.recipient.avatar} alt={chat.recipient.name} />
                   <AvatarFallback className="bg-gradient-to-br from-pink-400 to-violet-500 text-white">

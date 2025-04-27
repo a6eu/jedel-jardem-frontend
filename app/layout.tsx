@@ -20,6 +20,10 @@ export default function RootLayout({
   return (
     <Providers>
       <html lang="en" suppressHydrationWarning>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Hello</title>
+      </head>
       <body className={inter.className + ' w-screen overflow-x-hidden'}>
       <div className="w-full px-[5%]">
         {children}

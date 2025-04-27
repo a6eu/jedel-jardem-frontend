@@ -3,6 +3,7 @@ export interface Post {
   title: string
   description: string
   images: string[]
+  category: string
   author: {
     _id: string
     name: string
@@ -23,6 +24,13 @@ export interface User {
   avatar: string
   role: string
   gender: string
+  patientData: {
+    bloodType: string,
+    weight: string,
+    height: string,
+    illnessHistory: string[],
+    allergies: string[]
+  },
   company: string
   bio: string
 }

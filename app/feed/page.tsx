@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -15,6 +15,10 @@ import { useGetPosts } from '@/hooks/use-get-posts'
 import { useCreatePostMutation } from '@/hooks/use-create-post-mutation'
 import { Input } from '@/components/ui/input'
 import { useRouter } from 'next/navigation'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { SlidersHorizontal } from 'lucide-react'
 
 // Sample data for posts
 // const initialPosts = [
@@ -65,13 +69,17 @@ export default function FeedPage() {
 
   const [newPostContent, setNewPostContent] = useState({
     title: '',
-    description: ''
+    description: '',
+    category: ''
   })
   const { mutate: createChat, isSuccess: chatStatus, data: chatData } = useCreateChatMutation()
   const { posts } = useGetPosts()
   const { mutate: createPost, isPending: isPosting } = useCreatePostMutation()
   const router = useRouter()
   const [chatButtonClicked, setChatButtonClicked] = useState('')
+  const [category, setCategory] = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [authorName, setAuthorName] = useState('')
 
   const handleChatClick = (id: string) => {
     setChatButtonClicked(id)
@@ -89,12 +97,76 @@ export default function FeedPage() {
     createPost(newPostContent)
   }
 
+  const filteredPosts = posts?.filter((post) => {
+    const matchesCategory = category ? post.category?.toLowerCase() === category.toLowerCase() : true;
+    const matchesAuthor = authorName ? post.author?.name?.toLowerCase() === authorName.toLowerCase() : true;
+    const matchesSearch = searchTerm
+      ? post.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      post.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      post.category?.toLowerCase().includes(searchTerm.toLowerCase())
+      : true;
+
+    return matchesCategory && matchesSearch && matchesAuthor;
+  });
+
   return (
     <div className="flex min-h-screen flex-col">
       <MainNav />
       <main className="flex-1 container py-6">
         <div className="grid gap-6 md:grid-cols-3">
+
           <div className="md:col-span-2 space-y-6">
+            <div className="flex gap-2">
+              <Input
+                type="text"
+                placeholder="Search posts"
+                className="flex-1"
+                onChange={(e) => {
+                  setSearchTerm(e.target.value as string)
+                }}
+              />
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline"><SlidersHorizontal /></Button>
+                </DialogTrigger>
+
+                <DialogContent
+                  aria-labelledby="filter-dialog-title"
+                  aria-describedby="filter-dialog-description"
+                >
+                  <DialogHeader>
+                    <DialogTitle id="filter-dialog-title">Filter Posts</DialogTitle>
+                  </DialogHeader>
+
+                  <div id="filter-dialog-description" className="space-y-4">
+                    <Input placeholder="Author name.." value={authorName} onChange={(e) => {
+                      setAuthorName(e.target.value as string)
+                    }} />
+                    <div className="grid gap-2">
+                      <Label htmlFor="specialization">Category</Label>
+                      <Select
+                        onValueChange={(value) => setCategory(value)}
+                        value={category}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="cardiology">Cardiology</SelectItem>
+                          <SelectItem value="neurology">Neurology</SelectItem>
+                          <SelectItem value="pediatrics">Pediatrics</SelectItem>
+                          <SelectItem value="oncology">Oncology</SelectItem>
+                          <SelectItem value="dermatology">Dermatology</SelectItem>
+                          <SelectItem value="psychiatry">Psychiatry</SelectItem>
+                          <SelectItem value="general">General Practice</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+
+                </DialogContent>
+              </Dialog>
+            </div>
             <Card className="p-0 gap-3">
               <CardHeader className="p-4">
                 <div className="flex items-start gap-4">
@@ -112,6 +184,22 @@ export default function FeedPage() {
                 <Input value={newPostContent.title}
                        onChange={(e) => setNewPostContent({ ...newPostContent, title: e.target.value })}
                        placeholder="Title of post" />
+                <Select
+                  onValueChange={(value) => setNewPostContent({ ...newPostContent, category: value })}
+                  value={newPostContent.category}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="cardiology">Cardiology</SelectItem>
+                    <SelectItem value="neurology">Neurology</SelectItem>
+                    <SelectItem value="pediatrics">Pediatrics</SelectItem>
+                    <SelectItem value="oncology">Oncology</SelectItem>
+                    <SelectItem value="dermatology">Dermatology</SelectItem>
+                    <SelectItem value="psychiatry">Psychiatry</SelectItem>
+                    <SelectItem value="general">General Practice</SelectItem>
+                  </SelectContent>
+                </Select>
                 <Textarea
                   placeholder="What's on your mind? Share your medical insights, questions, or updates..."
                   className="min-h-[100px] resize-none"
@@ -134,10 +222,13 @@ export default function FeedPage() {
                 </Button>
               </CardFooter>
             </Card>
-            {posts?.map((post) => (
+            {filteredPosts?.length === 0 && (
+              <p className="text-center text-gray-500">No posts found. Try a different search or filter!</p>
+            )}
+            {filteredPosts?.map((post) => (
               <Card key={post._id} className="overflow-hidden gap-3 p-0">
                 <CardHeader className="p-4">
-                  <div className="flex items-start gap-4">
+                  <div onClick={() => router.push('/user/' + post.author._id)} className="flex items-start gap-4 cursor-pointer">
                     <Avatar>
                       <AvatarImage src={post.author.avatar} alt={post.author.name} />
                       <AvatarFallback
@@ -159,6 +250,8 @@ export default function FeedPage() {
                       <p className="text-xs text-gray-500">{formatDate(post.createdAt)}</p>
                     </div>
                   </div>
+                  <p className="m-0 ml-12 px-2 text-white bg-gray-500 text-sm w-fit rounded-full pt-0 mt-0">#{post.category.toLowerCase()}</p>
+
                 </CardHeader>
                 <p className="m-0 px-4 font-bold pt-0 mt-0">{post.title}</p>
                 <CardContent className="px-4 pt-0">
@@ -207,7 +300,6 @@ export default function FeedPage() {
                       <span>0</span>
                     </Button>
                   </div>
-                  {/*<Link href={`/chat/${post._id}`}>*/}
                   <Button onClick={() => handleChatClick(post.author._id)}
                           className="bg-gradient-to-r from-pink-500 to-violet-500">
                     {chatButtonClicked !== post.author._id
@@ -215,7 +307,6 @@ export default function FeedPage() {
                       : 'Click one more time'
                     }
                   </Button>
-                  {/*</Link>*/}
                 </CardFooter>
               </Card>
             ))}
@@ -247,35 +338,6 @@ export default function FeedPage() {
                 </div>
               </CardContent> : null}
             </Card>
-            {/*<Card className="mt-6">*/}
-            {/*  <CardHeader>*/}
-            {/*    <h3 className="text-lg font-semibold">Suggested Connections</h3>*/}
-            {/*  </CardHeader>*/}
-            {/*  <CardContent className="space-y-4">*/}
-            {/*    {users?.slice(Math.random() * users?.length).map((doctor, index) => (*/}
-            {/*      <div key={index} className="flex items-center justify-between">*/}
-            {/*        <div className="flex items-center gap-2">*/}
-            {/*          <Avatar className="h-8 w-8">*/}
-            {/*            <AvatarFallback*/}
-            {/*              className="bg-gradient-to-br from-pink-400 to-violet-500 text-white text-xs">*/}
-            {/*              {doctor.name*/}
-            {/*                .split(' ')*/}
-            {/*                .map((n) => n[0])*/}
-            {/*                .join('')}*/}
-            {/*            </AvatarFallback>*/}
-            {/*          </Avatar>*/}
-            {/*          <div>*/}
-            {/*            <p className="text-sm font-medium">{doctor.name}</p>*/}
-            {/*            <p className="text-xs text-gray-500">{doctor.role}</p>*/}
-            {/*          </div>*/}
-            {/*        </div>*/}
-            {/*        <Button variant="ghost" size="sm" className="text-pink-500">*/}
-            {/*          Connect*/}
-            {/*        </Button>*/}
-            {/*      </div>*/}
-            {/*    ))}*/}
-            {/*  </CardContent>*/}
-            {/*</Card>*/}
           </div>
         </div>
       </main>

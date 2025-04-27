@@ -7,6 +7,11 @@ class UserService {
     return response.data
   }
 
+  async getUserById(id: string): Promise<User> {
+    const response = await api.get<User>(`/users/${id}`)
+    return response.data
+  }
+
   async updateUser(data: Partial<User>) {
     return api.put<User>('/users', data)
   }
