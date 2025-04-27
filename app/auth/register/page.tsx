@@ -51,7 +51,7 @@ export default function RegisterPage() {
       const response = await api.post('/auth/register', formData)
       console.log(response)
       console.log('Registration successful')
-      router.push('/feed')
+      router.push('/auth/login')
     } catch (error) {
       console.error('Registration error:', error)
       alert('Registration failed. Please try again.')

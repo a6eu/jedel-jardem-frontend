@@ -28,24 +28,21 @@ export default function FeedPage() {
     description: '',
     category: ''
   })
-  const { mutate: createChat } = useCreateChatMutation()
   const { posts } = useGetPosts()
   const { mutate: createPost, isPending: isPosting } = useCreatePostMutation()
   const router = useRouter()
-  const [chatButtonClicked] = useState('')
   const [category, setCategory] = useState('')
+  const [chatButtonClicked, setChatButtonClicked] = useState<string>()
+  const { mutate: createChat, isSuccess: chatStatus, data: chatData } = useCreateChatMutation()
   const [searchTerm, setSearchTerm] = useState('')
   const [authorName, setAuthorName] = useState('')
 
-  const handleChatClick = async (id: string) => {
-    if (user) {
-      try {
-        const chatId = await createChat(id, user._id);
+  const handleChatClick = (id: string) => {
+    setChatButtonClicked(id)
+    createChat(id)
 
-        router.push(`/chat?id=${chatId}`);
-      } catch (error) {
-        console.error('Error creating chat:', error);
-      }
+    if (chatStatus) {
+      router.push(`/chat?id=${chatData?._id}`)
     }
   }
 

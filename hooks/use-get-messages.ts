@@ -1,14 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
-import { messageService } from '@/services/messageService'
+import { api } from '@/http'
+import { Message } from '@/types'
 
 export const useGetMessages = (chatId: string) => {
-  const { data, isPending } = useQuery({
-    queryKey: ['messages'],
-    queryFn: () => messageService.getMessages(chatId)
+  return useQuery({
+    queryKey: ['messages', chatId],
+    queryFn: async () => {
+      const { data } = await api.get<Message[]>(`/messages/${chatId}`)
+      return data
+    }
   })
-
-  return {
-    messages: data,
-    isPending
-  }
 }

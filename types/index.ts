@@ -46,6 +46,7 @@ export interface Chat {
 }
 
 export interface Message {
+  files: string[]
   userId: string
   _id: string
   chat: string

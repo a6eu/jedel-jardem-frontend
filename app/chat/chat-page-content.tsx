@@ -1,86 +1,119 @@
-import { useEffect, useRef, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useGetChatById } from '@/hooks/use-get-chat-by-id'
-import { Message } from '@/types'
-import { storeMessageInFirestore } from '@/services/firestoreService'
-import { MainNav } from '@/components/main-nav'
-import { ChatSidebar } from '@/components/chat-sidebar'
+'use client'
+
+import React, { useEffect, useRef, useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { Bell } from 'lucide-react'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Input } from '@/components/ui/input'
-import { format, isSameDay } from 'date-fns';
+import { MainNav } from '@/components/main-nav'
+import { ChatSidebar } from '@/components/chat-sidebar'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Bell, Download, FileText, ImageIcon, Paperclip } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
+import { useGetChatById } from '@/hooks/use-get-chat-by-id'
+import { useGetMessages } from '@/hooks/use-get-messages'
+import { formatDate } from '@/utils'
+import { api } from '@/http'
+import { useQueryClient } from '@tanstack/react-query'
 
-const formatDate = (timestamp: any): string => {
-  const date = timestamp.toDate()
-  return format(date, 'hh:mm a')
+type FileMessage = {
+  url: string
+  mimeType: string
+  originalName: string
+  size: number
 }
 
-export default function ChatPageContent() {
+type Message = {
+  _id: string
+  text?: string
+  files?: FileMessage[]
+  isMine: boolean
+  createdAt: string
+  sender?: {
+    _id: string
+    name: string
+    avatar?: string
+  }
+}
+
+type ChatRecipient = {
+  id: string
+  name: string
+  avatar?: string
+  role: string
+}
+
+type ChatData = {
+  recipient: ChatRecipient
+}
+
+export default function ChatPage() {
+  const queryClient = useQueryClient()
+  const [files, setFiles] = useState<File[]>([])
   const [newMessage, setNewMessage] = useState('')
   const [alertStatus, setAlertStatus] = useState(false)
-  const [file, setFile] = useState<File | null>(null)
   const params = useSearchParams()
-  const { chat } = useGetChatById(params.get('id') as string)
-  const [messages, setMessages] = useState<Partial<Message[]>>([])
-  const router = useRouter()
-  const messagesEndRef = useRef<HTMLDivElement | null>(null)
+  const { chat } = useGetChatById(params.get('id') as string) as { chat?: ChatData }
+  const { data: messages } = useGetMessages(params.get('id') as string) as { data?: Message[] }
+
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    scrollToBottom()
   }, [messages])
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!newMessage.trim() && files.length === 0) return
 
-    if (!newMessage.trim() && !file) return
-
-    let messageText = newMessage
-
-    if (file) {
-      messageText = await convertFileToBase64(file)
+    const formData = new FormData()
+    formData.append('chatId', params.get('id') as string)
+    if (newMessage.trim()) {
+      formData.append('text', newMessage)
     }
 
-    if (chat && chat.recipient?._id) {
-      await storeMessageInFirestore(params.get('id') as string, chat.recipient._id, messageText, !!file)
-    }
-
-    setNewMessage('')
-    setFile(null)
-  }
-
-  const formatDateForGrouping = (timestamp: any): string => {
-    const date = timestamp.toDate();
-    return format(date, 'MMMM dd, yyyy');
-  };
-
-  if (!chat) {
-    return null
-  }
-
-  const groupedMessages = chat.messages?.reduce((acc, message) => {
-    if (message.createdAt) {
-      const date = formatDateForGrouping(message.createdAt);
-      if (!acc[date]) {
-        acc[date] = [];
-      }
-      acc[date].push(message);
-    }
-    return acc;
-  }, {} as { [key: string]: Partial<Message>[] });
-
-  const convertFileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.readAsDataURL(file)
-      reader.onloadend = () => resolve(reader.result as string)
-      reader.onerror = reject
+    files.forEach((file) => {
+      formData.append('files', file, file.name)
     })
+
+    try {
+      await api.post('/messages', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+
+      setNewMessage('')
+      setFiles([])
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+      queryClient.invalidateQueries({ queryKey: ['messages', params.get('id')] })
+    } catch (error) {
+      console.error('Failed to send message:', error)
+    }
   }
 
   const toggleAlert = () => {
-    setAlertStatus(!alertStatus)
+    setAlertStatus((prev) => !prev)
+  }
+
+  const getFileIcon = (mimeType: string) => {
+    if (mimeType.startsWith('image/')) return <ImageIcon className="h-4 w-4" />
+    return <FileText className="h-4 w-4" />
+  }
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
   }
 
   return (
@@ -89,113 +122,184 @@ export default function ChatPageContent() {
       <div className="flex flex-1 overflow-hidden">
         <ChatSidebar />
         <main className="flex flex-1 flex-col">
-          {chat ? <>
-            <div className="border-b p-4 flex items-center justify-between">
-              <div onClick={() => router.push('/user/' + chat?.recipient?._id)}
-                   className="flex items-center gap-2 cursor-pointer">
-                <Avatar>
-                  <AvatarImage src={chat.recipient.avatar} alt={chat.recipient.name} />
-                  <AvatarFallback className="bg-[#1E7F6E] text-white">
-                    {chat.recipient.name
-                      .split(' ')
-                      .map((n: any[]) => n[0])
-                      .join('')}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <h2 className="font-semibold">{chat.recipient.name}</h2>
-                  <p className="text-xs text-gray-500">{chat.recipient.role}</p>
+          {chat?.recipient ? (
+            <>
+              <div className="border-b p-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Avatar>
+                    <AvatarImage src={chat.recipient.avatar} alt={chat.recipient.name} />
+                    <AvatarFallback className="bg-black text-white">
+                      {chat.recipient.name.split(' ').map((n) => n[0]).join('') || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h2 className="font-semibold">{chat.recipient.name}</h2>
+                    <p className="text-xs text-gray-500">{chat.recipient.role}</p>
+                  </div>
                 </div>
+                <Button
+                  variant={alertStatus ? 'destructive' : 'outline'}
+                  size="sm"
+                  onClick={toggleAlert}
+                  className="flex items-center gap-1"
+                >
+                  <Bell className="h-4 w-4" />
+                  <span>{alertStatus ? 'Alert Off' : 'Alert On'}</span>
+                </Button>
               </div>
-              <Button
-                variant={alertStatus ? 'destructive' : 'outline'}
-                size="sm"
-                onClick={toggleAlert}
-                className="flex items-center gap-1"
-              >
-                <Bell className="h-4 w-4" />
-                <span>{alertStatus ? 'Alert Off' : 'Alert On'}</span>
-              </Button>
-            </div>
 
-            <div className="h-full max-h-[600px] flex flex-col overflow-y-scroll">
               {alertStatus && (
                 <Alert className="m-4 border-red-500 bg-red-50 text-red-800">
                   <Bell className="h-4 w-4" />
                   <AlertTitle>Alert Status Active</AlertTitle>
                   <AlertDescription>
-                    You have activated the alert status for this conversation. The user will be notified
-                    of an urgent
-                    matter.
+                    You have activated the alert status for this conversation.
                   </AlertDescription>
                 </Alert>
               )}
 
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {Object.entries(groupedMessages).map(([date, messagesForDate]) => (
-                  <div key={date}>
-                    <div className="text-center text-gray-500 py-2">{date}</div>
-                    {messagesForDate.map((message) => (
-                      <div
-                        key={message._id}
-                        className={`flex my-2 ${
-                          message.userId !== chat?.recipient?._id ? 'justify-start' : 'justify-end'
-                        }`}
-                      >
-                        <div
-                          className={`max-w-[70%] rounded-lg p-3 ${
-                            message.userId !== chat?.recipient?._id
-                              ? 'bg-gray-100'
-                              : 'bg-[#1E7F6E] text-white'
-                          }`}
-                        >
-                          {message.isFile ? (
-                            <a
-                              href={message.text}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="underline"
-                            >
-                              View File
-                            </a>
-                          ) : (
-                            <p>{message.text}</p>
-                          )}
-                          <p
-                            className={`text-right text-xs ${
-                              message.userId !== chat?.recipient?._id ? 'text-gray-500' : 'text-white/70'
-                            }`}
-                          >
-                            {message.createdAt ? formatDate(message.createdAt) : ''}
-                          </p>
-                        </div>
+              <div
+                ref={messagesContainerRef}
+                className="flex-1 overflow-y-auto p-4 space-y-4"
+                style={{ maxHeight: 'calc(100vh - 200px)' }}
+              >
+                {messages && messages.length > 0 ? (
+                  messages.map((message) => (
+                    <div key={message._id} className={`flex ${message.isMine ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`max-w-[70%] rounded-lg p-3 space-y-2 ${
+                        message.isMine ? 'bg-[#1E7F6E] text-white' : 'bg-gray-100'
+                      }`}>
+                        {message.text && <p>{message.text}</p>}
+
+                        {message.files?.map((file, i) => {
+                          if (!file) {
+                            console.warn(`File at index ${i} is null or undefined`)
+                            return null
+                          }
+
+                          const mimeType = file.mimeType || 'application/octet-stream'
+                          const isImage = mimeType.startsWith('image/')
+
+                          return (
+                            <div key={i} className="border rounded-md p-2 bg-white/10">
+                              <div className="flex items-center gap-2">
+                                {getFileIcon(mimeType)}
+                                <span className="text-sm font-medium truncate max-w-[150px]">
+                                  {file.originalName || `file-${i + 1}`}
+                                </span>
+                                <span className="text-xs opacity-70">
+                                  {file.size ? formatFileSize(file.size) : 'Unknown size'}
+                                </span>
+                                {file.url && (
+                                  <a
+                                    href={file.url}
+                                    download={file.originalName || `file-${i + 1}`}
+                                    className="ml-auto"
+                                  >
+                                    <Download className="h-4 w-4" />
+                                  </a>
+                                )}
+                              </div>
+
+                              {isImage && file.url && (
+                                <div className="mt-2">
+                                  <img
+                                    src={file.url}
+                                    alt={file.originalName || `Image ${i + 1}`}
+                                    className="max-w-xs max-h-48 rounded-md border border-gray-300"
+                                    onError={(e) => {
+                                      (e.currentTarget as HTMLImageElement).style.display = 'none'
+                                    }}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })}
+                        <p className={`text-right text-xs ${
+                          message.isMine ? 'text-white/70' : 'text-gray-500'
+                        }`}>
+                          {formatDate(message.createdAt)}
+                        </p>
                       </div>
-                    ))}
-                  </div>
-                ))}
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center text-gray-400">No messages yet.</div>
+                )}
                 <div ref={messagesEndRef} />
               </div>
-            </div>
 
-            <form onSubmit={handleSendMessage} className="border-t p-4 flex gap-2">
-              <Input
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Type your message..."
-                className="flex-1"
-              />
-              <input
-                type="file"
-                accept="image/*,video/*,audio/*"
-                onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)}
-              />
-              <Button type="submit" className="bg-[#1E7F6E]">
-                Send
-              </Button>
-            </form>
-          </> : <div className="h-full w-full flex items-center justify-center">
-            Chat is not selected yet
-          </div>}
+              <form onSubmit={handleSendMessage} className="border-t p-4 flex gap-2 items-center">
+                <div className="relative">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Paperclip className="h-5 w-5" />
+                  </Button>
+                  <input
+                    type="file"
+                    multiple
+                    ref={fileInputRef}
+                    onChange={(e) => setFiles(Array.from(e.target.files || []))}
+                    className="hidden"
+                  />
+                </div>
+
+                {files.length > 0 && (
+                  <div className="absolute bottom-16 left-0 right-0 px-4">
+                    <div className="bg-white p-2 rounded-md border shadow-sm max-w-md mx-auto">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-sm font-medium">Attachments ({files.length})</h4>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFiles([])
+                            if (fileInputRef.current) fileInputRef.current.value = ''
+                          }}
+                          className="text-xs text-red-500"
+                        >
+                          Clear all
+                        </button>
+                      </div>
+                      <div className="space-y-2">
+                        {files.map((file, i) => (
+                          <div key={i} className="flex items-center gap-2 text-sm">
+                            {file.type.startsWith('image/') ? (
+                              <ImageIcon className="h-4 w-4" />
+                            ) : (
+                              <FileText className="h-4 w-4" />
+                            )}
+                            <span className="truncate flex-1">{file.name}</span>
+                            <span className="text-xs text-gray-500">
+                              {formatFileSize(file.size)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <Input
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  placeholder="Type your message..."
+                  className="flex-1"
+                />
+                <Button type="submit" className="bg-[#1E7F6E] hover:bg-[#1E7F6E]/90">
+                  Send
+                </Button>
+              </form>
+            </>
+          ) : (
+            <div className="h-full w-full flex items-center justify-center">
+              Chat is not selected yet
+            </div>
+          )}
         </main>
       </div>
     </div>

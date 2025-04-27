@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -9,47 +9,19 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { ChevronLeft, Search } from 'lucide-react'
 import { useGetChats } from '@/hooks/use-get-chats'
 import { formatDate } from '@/utils'
-import { userService } from '@/services/userService'
-import { useGetUser } from '@/hooks/use-get-user'
 
 export function ChatSidebar() {
   const [isOpen, setIsOpen] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const { user } = useGetUser()
-  const { chats } = useGetChats(user?._id)
-
-  const [users, setUsers] = useState<{ [key: string]: any }>({})
-
-  useEffect(() => {
-    if (chats) {
-      const fetchUsers = async () => {
-        const updatedUsers: { [key: string]: any } = {}
-
-        for (const chat of chats) {
-          const recipientId = chat.members.find((id: string) => id !== user?._id)
-          if (recipientId) {
-            try {
-              updatedUsers[recipientId] = await userService.getUserById(recipientId)
-            } catch (error) {
-              console.error('Error fetching user data:', error)
-            }
-          }
-        }
-        setUsers(updatedUsers)
-      }
-
-      fetchUsers()
-    }
-  }, [chats, user?._id])
+  const { chats } = useGetChats()
 
   if (!chats) {
     return null
   }
 
-  const filteredChats = chats.filter((chat) => {
-    const recipient = users[chat.members.find((id: string) => id !== user?._id)]
-    return recipient && recipient.name.toLowerCase().includes(searchQuery.toLowerCase())
-  })
+  const filteredChats = chats.filter(
+    (chat) => chat.recipient?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
   return (
     <div className={`border-r bg-gray-50 transition-all duration-300 ${isOpen ? 'w-80' : 'w-0'}`}>
@@ -76,38 +48,34 @@ export function ChatSidebar() {
           </div>
           <ScrollArea className="flex-1">
             <div className="space-y-1 p-2">
-              {filteredChats.map((chat) => {
-                const recipient = users[chat.members.find((id: string) => id !== user?._id)]
-                if (!recipient) return null
-                return (
-                  <Link
-                    key={chat.id}
-                    href={`/chat?id=${chat.id}`}
-                    className="flex items-center gap-3 rounded-lg p-2 hover:bg-gray-100"
-                  >
-                    <div className="relative">
-                      <Avatar>
-                        <AvatarImage src={recipient.avatar} alt={recipient.name} />
-                        <AvatarFallback
-                          className="bg-[#1E7F6E] text-white"
-                        >
-                          {recipient.name
-                            .split(' ')
-                            .map((n: string) => n[0])
-                            .join('')}
-                        </AvatarFallback>
-                      </Avatar>
+              {filteredChats.map((chat) => (
+                <Link
+                  key={chat._id}
+                  href={`/chat?id=${chat._id}`}
+                  className="flex items-center gap-3 rounded-lg p-2 hover:bg-gray-100"
+                >
+                  <div className="relative">
+                    <Avatar>
+                      <AvatarImage src={chat.recipient.avatar} alt={chat.recipient.name} />
+                      <AvatarFallback
+                        className="bg-[#1E7F6E] text-white">
+                        {chat.recipient.name
+                          .split(' ')
+                          .map((n) => n[0])
+                          .join('')}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+                  <div className="flex-1 overflow-hidden">
+                    <div className="flex items-center justify-between">
+                      <p className="font-medium">{chat.recipient.name}</p>
+                      <p className="text-xs text-gray-500">{formatDate(chat.updatedAt)}</p>
                     </div>
-                    <div className="flex-1 overflow-hidden">
-                      <div className="flex items-center justify-between">
-                        <p className="font-medium">{recipient.name}</p>
-                        <p className="text-xs text-gray-500">{formatDate(chat.updatedAt)}</p>
-                      </div>
-                      <p className="truncate text-sm text-gray-500">{chat.lastMessage}</p>
-                    </div>
-                  </Link>
-                )
-              })}
+                    <p className="truncate text-sm text-gray-500">{chat.lastMessage}</p>
+                  </div>
+                  {/*{chat.unread && <div className="h-2 w-2 rounded-full bg-pink-500" />}*/}
+                </Link>
+              ))}
             </div>
           </ScrollArea>
         </div>
