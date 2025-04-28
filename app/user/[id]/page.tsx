@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation'
 import { useGetUserById } from '@/hooks/use-get-user-by-id'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import type React from 'react'
 
 export default function UserPage() {
@@ -42,6 +42,7 @@ export default function UserPage() {
                   <div className="flex flex-col md:flex-row gap-6">
                     <div className="flex flex-col items-center space-y-2">
                       <Avatar className="h-24 w-24 border-2 border-pink-200">
+                        <AvatarImage className="object-cover" src={user?.gender + ".jpg"} />
                         <AvatarFallback
                           className="bg-gradient-to-br from-pink-400 to-violet-500 text-white text-xl"
                         >

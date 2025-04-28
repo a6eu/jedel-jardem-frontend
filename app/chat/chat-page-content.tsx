@@ -14,6 +14,7 @@ import { useGetMessages } from '@/hooks/use-get-messages'
 import { formatDate } from '@/utils'
 import { api } from '@/http'
 import { useQueryClient } from '@tanstack/react-query'
+import { io } from 'socket.io-client' // Import Socket.IO client
 
 type FileMessage = {
   url: string
@@ -36,6 +37,7 @@ type Message = {
 }
 
 type ChatRecipient = {
+  gender: string
   _id: string
   name: string
   avatar?: string
@@ -64,6 +66,23 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
+  const socket = useRef<any>(null)
+
+  useEffect(() => {
+
+    socket.current = io('http://jedel-jardem.space/socket.io/')
+
+    socket.current.on('receive-message', (message: Message) => {
+
+      console.log('New message received:', message)
+      queryClient.invalidateQueries({ queryKey: ['messages', params.get('id')] })
+    })
+
+    return () => {
+      if (socket.current) socket.current.disconnect()
+    }
+  }, [])
+
   useEffect(() => {
     scrollToBottom()
   }, [messages])
@@ -87,6 +106,12 @@ export default function ChatPage() {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
+      })
+
+      socket.current.emit('send-message', {
+        chat: params.get('id'),
+        text: newMessage,
+        files,
       })
 
       setNewMessage('')
@@ -128,7 +153,7 @@ export default function ChatPage() {
               <div onClick={() => router.push(`/user/${chat?.recipient._id}`)} className="border-b p-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Avatar>
-                    <AvatarImage src={chat.recipient.avatar} alt={chat.recipient.name} />
+                    <AvatarImage className="object-cover" src={chat.recipient?.gender + ".jpg"} />
                     <AvatarFallback className="bg-black text-white">
                       {chat.recipient.name.split(' ').map((n) => n[0]).join('') || 'U'}
                     </AvatarFallback>
@@ -193,7 +218,7 @@ export default function ChatPage() {
                                 </span>
                                 {file.url && (
                                   <a
-                                    href={file.url}
+                                    href={"http://jedel-jardem.space" + file.url}
                                     download={file.originalName || `file-${i + 1}`}
                                     className="ml-auto"
                                   >

@@ -2,7 +2,7 @@
 
 import type React from 'react'
 import { useEffect, useState } from 'react'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -82,6 +82,7 @@ export default function ProfilePage() {
                   <div className="flex flex-col md:flex-row gap-6">
                     <div className="flex flex-col items-center space-y-2">
                       <Avatar className="h-24 w-24 border-2 border-pink-200">
+                        <AvatarImage className="object-cover" src={user?.gender + ".jpg"} />
                         <AvatarFallback
                           className="bg-[#1E7F6E] text-white text-xl">
                           {profileData.name

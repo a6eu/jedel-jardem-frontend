@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -56,7 +56,7 @@ export function ChatSidebar() {
                 >
                   <div className="relative">
                     <Avatar>
-                      <AvatarImage src={chat.recipient.avatar} alt={chat.recipient.name} />
+                      <AvatarImage className="object-cover" src={chat.recipient?.gender + ".jpg"} />
                       <AvatarFallback
                         className="bg-[#1E7F6E] text-white">
                         {chat.recipient.name

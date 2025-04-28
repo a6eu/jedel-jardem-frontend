@@ -127,6 +127,7 @@ export default function FeedPage() {
               <CardHeader className="p-4">
                 <div className="flex items-start gap-4">
                   <Avatar>
+                    <AvatarImage className="object-cover" src={user?.gender + ".jpg"} />
                     <AvatarFallback className="bg-[#1E7F6E] text-white">
                       {user?.name.charAt(0).toUpperCase()}
                     </AvatarFallback>
@@ -186,7 +187,7 @@ export default function FeedPage() {
                 <CardHeader className="p-4">
                   <div onClick={() => router.push('/user/' + post.author._id)} className="flex items-start gap-4 cursor-pointer">
                     <Avatar>
-                      <AvatarImage src={post.author.avatar} alt={post.author.name} />
+                      <AvatarImage className="object-cover" src={post.author?.gender + ".jpg"} />
                       <AvatarFallback
                         className="bg-[#1E7F6E] text-white">
                         {post.author.name
@@ -275,8 +276,10 @@ export default function FeedPage() {
               {user ? <CardContent>
                 <div className="flex items-center gap-4">
                   <Avatar className="h-16 w-16 border-2">
+                    <AvatarImage className="object-cover" src={user?.gender + ".jpg"} />
                     <AvatarFallback
                       className="bg-[#1E7F6E] text-white">
+
                       {user.name?.split(' ').map((name: string) => name[0])}
                     </AvatarFallback>
                   </Avatar>

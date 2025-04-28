@@ -5,6 +5,7 @@ export interface Post {
   images: string[]
   category: string
   author: {
+    gender: string
     _id: string
     name: string
     email: string
