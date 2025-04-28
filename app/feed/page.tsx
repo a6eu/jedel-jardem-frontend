@@ -54,16 +54,16 @@ export default function FeedPage() {
   }
 
   const filteredPosts = posts?.filter((post) => {
-    const matchesCategory = category ? post.category?.toLowerCase() === category.toLowerCase() : true;
-    const matchesAuthor = authorName ? post.author?.name?.toLowerCase() === authorName.toLowerCase() : true;
+    const matchesCategory = category ? post.category?.toLowerCase() === category.toLowerCase() : true
+    const matchesAuthor = authorName ? post.author?.name?.toLowerCase().includes(authorName.toLowerCase()) : true
     const matchesSearch = searchTerm
       ? post.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       post.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       post.category?.toLowerCase().includes(searchTerm.toLowerCase())
-      : true;
+      : true
 
-    return matchesCategory && matchesSearch && matchesAuthor;
-  });
+    return matchesCategory && matchesSearch && matchesAuthor
+  })
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -96,7 +96,7 @@ export default function FeedPage() {
 
                   <div id="filter-dialog-description" className="space-y-4">
                     <Input placeholder="Author name.." value={authorName} onChange={(e) => {
-                      setAuthorName(e.target.value as string)
+                      setAuthorName(e.target.value)
                     }} />
                     <div className="grid gap-2">
                       <Label htmlFor="specialization">Category</Label>
@@ -119,7 +119,17 @@ export default function FeedPage() {
                     </div>
                   </div>
 
-
+                  <Button
+                    variant="outline"
+                    className="w-full text-red-500 border-red-500 hover:bg-red-100"
+                    onClick={() => {
+                      setSearchTerm('')
+                      setCategory('')
+                      setAuthorName('')
+                    }}
+                  >
+                    Reset Filters
+                  </Button>
                 </DialogContent>
               </Dialog>
             </div>
@@ -127,7 +137,7 @@ export default function FeedPage() {
               <CardHeader className="p-4">
                 <div className="flex items-start gap-4">
                   <Avatar>
-                    <AvatarImage className="object-cover" src={user?.gender + ".jpg"} />
+                    <AvatarImage className="object-cover" src={user?.gender + '.jpg'} />
                     <AvatarFallback className="bg-[#1E7F6E] text-white">
                       {user?.name.charAt(0).toUpperCase()}
                     </AvatarFallback>
@@ -185,9 +195,10 @@ export default function FeedPage() {
             {filteredPosts?.map((post) => (
               <Card key={post._id} className="overflow-hidden gap-3 p-0">
                 <CardHeader className="p-4">
-                  <div onClick={() => router.push('/user/' + post.author._id)} className="flex items-start gap-4 cursor-pointer">
+                  <div onClick={() => router.push('/user/' + post.author._id)}
+                       className="flex items-start gap-4 cursor-pointer">
                     <Avatar>
-                      <AvatarImage className="object-cover" src={post.author?.gender + ".jpg"} />
+                      <AvatarImage className="object-cover" src={post.author?.gender + '.jpg'} />
                       <AvatarFallback
                         className="bg-[#1E7F6E] text-white">
                         {post.author.name
@@ -207,7 +218,8 @@ export default function FeedPage() {
                       <p className="text-xs text-gray-500">{formatDate(post.createdAt)}</p>
                     </div>
                   </div>
-                  <p className="m-0 ml-12 px-2 text-white bg-gray-500 text-sm w-fit rounded-full pt-0 mt-0">#{post.category.toLowerCase()}</p>
+                  <p
+                    className="m-0 ml-12 px-2 text-white bg-gray-500 text-sm w-fit rounded-full pt-0 mt-0">#{post.category.toLowerCase()}</p>
 
                 </CardHeader>
                 <p className="m-0 px-4 font-bold pt-0 mt-0">{post.title}</p>
@@ -276,7 +288,7 @@ export default function FeedPage() {
               {user ? <CardContent>
                 <div className="flex items-center gap-4">
                   <Avatar className="h-16 w-16 border-2">
-                    <AvatarImage className="object-cover" src={user?.gender + ".jpg"} />
+                    <AvatarImage className="object-cover" src={user?.gender + '.jpg'} />
                     <AvatarFallback
                       className="bg-[#1E7F6E] text-white">
 
