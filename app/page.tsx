@@ -16,7 +16,7 @@ export default function Home() {
               <Link href="/" className="mr-6 flex items-center space-x-2">
               <span
                 className="font-bold text-xl bg-gradient-to-r from-teal-500 to-teal-700 bg-clip-text text-transparent">
-                MedConnect
+                Jedel Jardem
               </span>
               </Link>
             </div>
@@ -150,7 +150,7 @@ export default function Home() {
                     Trusted by Medical Professionals
                   </h2>
                   <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl">
-                    Hear what our community members say about MedConnect
+                    Hear what our community members say about Jedel Jardem
                   </p>
                 </div>
               </div>
@@ -166,7 +166,7 @@ export default function Home() {
                     </div>
                   </div>
                   <p className="text-gray-600">
-                    &#34;MedConnect has transformed how I collaborate with colleagues. The case discussion
+                    &#34;Jedel Jardem has transformed how I collaborate with colleagues. The case discussion
                     forums are invaluable.&#34;
                   </p>
                   <div className="flex mt-4">
@@ -212,7 +212,7 @@ export default function Home() {
                     </div>
                   </div>
                   <p className="text-gray-600">
-                    &#34;As a rural practitioner, MedConnect gives me access to specialist opinions I wouldn&#39;t
+                    &#34;As a rural practitioner, Jedel Jardem gives me access to specialist opinions I wouldn&#39;t
                     otherwise have.&#34;
                   </p>
                   <div className="flex mt-4">
@@ -359,7 +359,7 @@ export default function Home() {
                 <div className="space-y-4 lg:w-1/2">
                   <h2
                     className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl bg-gradient-to-r from-teal-500 to-teal-700 bg-clip-text text-transparent">
-                    Take MedConnect With You
+                    Take Jedel Jardem With You
                   </h2>
                   <p className="text-gray-600 max-w-[600px]">
                     Download our mobile app to stay connected with your professional network wherever you go.
@@ -383,11 +383,10 @@ export default function Home() {
                 </div>
                 <div className="lg:w-1/2 flex justify-center">
                   <div className="relative">
-                    <div className="absolute -inset-4 bg-teal-200 rounded-3xl blur-md opacity-75"></div>
-                    <div className="relative bg-white p-2 rounded-2xl shadow-xl border border-gray-100">
+                    <div className="relative">
                       <img
-                        src="/images/medconnect-app-screenshot.jpg"
-                        alt="MedConnect Mobile App"
+                        src="/mockup.png"
+                        alt="Jedel Jardem Mobile App"
                         className="w-full max-w-xs rounded-xl"
                         width={300}
                         height={600}
@@ -402,7 +401,7 @@ export default function Home() {
         <footer className="border-t py-6 md:py-0">
           <div className="container flex flex-col items-center justify-between gap-4 md:h-16 md:flex-row">
             <p className="text-center text-sm leading-loose text-gray-500 md:text-left">
-              © 2024 MedConnect. All rights reserved.
+              © 2024 Jedel Jardem. All rights reserved.
             </p>
           </div>
         </footer>
